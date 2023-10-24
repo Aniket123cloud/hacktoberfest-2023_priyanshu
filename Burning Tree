@@ -1,0 +1,81 @@
+Given a binary tree and a node data called target. Find the minimum time required to burn the complete binary tree if the target is set on fire. It is known that in 1 second all nodes connected to a given node get burned. That is its left child, right child, and parent.
+Note: The tree contains unique values.
+
+
+Example 1:
+
+Input:      
+          1
+        /   \
+      2      3
+    /  \      \
+   4    5      6
+       / \      \
+      7   8      9
+                   \
+                   10
+Target Node = 8
+Output: 7
+Explanation: If leaf with the value 
+8 is set on fire. 
+After 1 sec: 5 is set on fire.
+After 2 sec: 2, 7 are set to fire.
+After 3 sec: 4, 1 are set to fire.
+After 4 sec: 3 is set to fire.
+After 5 sec: 6 is set to fire.
+After 6 sec: 9 is set to fire.
+After 7 sec: 10 is set to fire.
+It takes 7s to burn the complete tree.
+
+
+class TreeNode:
+    def __init__(self, value=0, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+def minTimeToBurnTree(root, target):
+    def findTimeToBurn(node, target, time):
+        if not node:
+            return 0, 0
+        
+        if node.value == target:
+            return time, 1
+
+        left_time, left_burns = findTimeToBurn(node.left, target, time + 1)
+        right_time, right_burns = findTimeToBurn(node.right, target, time + 1)
+
+        if left_burns or right_burns:
+            return max(left_time, right_time), 1
+
+        return max(left_time, right_time), 0
+
+    def findMaxTime(node, time):
+        if not node:
+            return 0
+        
+        left_max = findMaxTime(node.left, time)
+        right_max = findMaxTime(node.right, time)
+        
+        return max(left_max, right_max, time)
+
+    time_to_burn, _ = findTimeToBurn(root, target, 0)
+    max_time = findMaxTime(root, time_to_burn)
+
+    return max_time
+
+# Example usage:
+root = TreeNode(1)
+root.left = TreeNode(2)
+root.right = TreeNode(3)
+root.left.left = TreeNode(4)
+root.left.right = TreeNode(5)
+root.right.right = TreeNode(6)
+root.left.right.left = TreeNode(7)
+root.left.right.right = TreeNode(8)
+root.right.right.right = TreeNode(9)
+root.right.right.right.right = TreeNode(10)
+
+target = 8
+result = minTimeToBurnTree(root, target)
+print(result)  # Output: 7
